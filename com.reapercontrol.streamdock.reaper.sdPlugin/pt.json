@@ -1,0 +1,45 @@
+{
+  "Name": "ReaperControl for StreamDock",
+  "Description": "Channel controller for REAPER with always-on VU meters, FX parameter control, and transport via OSC.",
+  "Category": "Audio Production",
+  "com.reapercontrol.streamdock.reaper.channelstrip": {
+    "Name": "Channel Strip",
+    "Tooltip": "REAPER channel with VU meter. Press to mute/solo/select."
+  },
+  "com.reapercontrol.streamdock.reaper.channelfader": {
+    "Name": "Channel Fader",
+    "Tooltip": "Knob volume/pan control for a REAPER channel."
+  },
+  "com.reapercontrol.streamdock.reaper.transport": {
+    "Name": "Transport",
+    "Tooltip": "REAPER transport control."
+  },
+  "com.reapercontrol.streamdock.reaper.bank": {
+    "Name": "Bank",
+    "Tooltip": "Navigate channel banks."
+  },
+  "com.reapercontrol.streamdock.reaper.fxparam": {
+    "Name": "FX Parameter",
+    "Tooltip": "Control any VST/AU/JSFX parameter in REAPER."
+  },
+  "Localization": {
+    "Host": "Host",
+    "Send Port": "Send Port",
+    "Receive Port": "Receive Port",
+    "Track Number": "Track Number",
+    "Follow Bank": "Follow Bank",
+    "Bank Offset": "Bank Offset",
+    "Key Press Action": "Key Press Action",
+    "Show Peak Hold": "Show Peak Hold",
+    "Label Size": "Label Size",
+    "Knob Action": "Knob Action",
+    "Sensitivity": "Sensitivity",
+    "Command": "Command",
+    "Direction": "Direction",
+    "Bank Size": "Bank Size",
+    "FX Number": "FX Number",
+    "Parameter Number": "Parameter Number",
+    "Last Touched": "Last Touched",
+    "Press Action": "Press Action"
+  }
+}

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Channel Fader - Property Inspector</title>
+    <link href="../utils/bootstrap-icons.css" rel="stylesheet">
+    <link href="../utils/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sdpi-wrapper p-3">
+        <h6 class="text-white mb-3">REAPER OSC Connection</h6>
+        <div class="mb-2">
+            <label class="form-label">Host</label>
+            <input type="text" id="oscHost" class="form-control" value="127.0.0.1">
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">Send Port</label>
+                <input type="num" id="oscSendPort" class="form-control" value="8000">
+            </div>
+            <div class="col-6">
+                <label class="form-label">Receive Port</label>
+                <input type="num" id="oscRecvPort" class="form-control" value="9000">
+            </div>
+        </div>
+
+        <hr class="border-secondary">
+
+        <div class="mb-2">
+            <label class="form-label">Track Number</label>
+            <input type="num" id="trackNumber" class="form-control" value="1">
+        </div>
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="followBank">
+            <label class="form-check-label" for="followBank">Follow Bank</label>
+        </div>
+        <div class="mb-3" id="bankOffsetWrap">
+            <label class="form-label">Bank Offset</label>
+            <input type="num" id="bankOffset" class="form-control" value="1">
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Knob Action</label>
+            <select id="knobAction" class="form-select">
+                <option value="volume">Volume</option>
+                <option value="pan">Pan</option>
+            </select>
+        </div>
+
+        <div class="mb-2">
+            <label class="form-label">Sensitivity</label>
+            <input type="num" id="sensitivity" class="form-control" value="1.0">
+        </div>
+    </div>
+
+    <script src="../utils/common.js"></script>
+    <script src="../utils/action.js"></script>
+    <script src="../utils/axios.js"></script>
+    <script src="index.js"></script>
+</body>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 8px;
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+    ::-webkit-scrollbar { display: none; }
+    .form-label { font-size: 12px; margin-bottom: 4px; }
+    .form-control, .form-select { font-size: 13px; }
+</style>
+
+</html>

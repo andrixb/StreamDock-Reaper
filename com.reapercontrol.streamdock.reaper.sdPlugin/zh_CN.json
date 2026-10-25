@@ -1,0 +1,45 @@
+{
+  "Name": "ReaperControl for StreamDock",
+  "Description": "通过OSC控制REAPER的通道、VU表、FX参数和走带。",
+  "Category": "音频制作",
+  "com.reapercontrol.streamdock.reaper.channelstrip": {
+    "Name": "通道条",
+    "Tooltip": "带VU表的REAPER通道，按键可静音/独奏/选择。"
+  },
+  "com.reapercontrol.streamdock.reaper.channelfader": {
+    "Name": "通道推子",
+    "Tooltip": "旋钮控制REAPER通道音量/声像。"
+  },
+  "com.reapercontrol.streamdock.reaper.transport": {
+    "Name": "走带",
+    "Tooltip": "REAPER走带控制。"
+  },
+  "com.reapercontrol.streamdock.reaper.bank": {
+    "Name": " bank切换",
+    "Tooltip": "切换通道bank。"
+  },
+  "com.reapercontrol.streamdock.reaper.fxparam": {
+    "Name": "FX参数",
+    "Tooltip": "控制REAPER中任意VST/AU/JSFX参数。"
+  },
+  "Localization": {
+    "Host": "主机",
+    "Send Port": "发送端口",
+    "Receive Port": "接收端口",
+    "Track Number": "轨道编号",
+    "Follow Bank": "跟随Bank",
+    "Bank Offset": "Bank偏移",
+    "Key Press Action": "按键动作",
+    "Show Peak Hold": "显示峰值保持",
+    "Label Size": "标签字号",
+    "Knob Action": "旋钮动作",
+    "Sensitivity": "灵敏度",
+    "Command": "命令",
+    "Direction": "方向",
+    "Bank Size": "Bank大小",
+    "FX Number": "FX编号",
+    "Parameter Number": "参数编号",
+    "Last Touched": "最后触摸",
+    "Press Action": "按压动作"
+  }
+}

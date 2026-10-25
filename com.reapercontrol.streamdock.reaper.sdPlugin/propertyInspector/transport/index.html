@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Transport - Property Inspector</title>
+    <link href="../utils/bootstrap-icons.css" rel="stylesheet">
+    <link href="../utils/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sdpi-wrapper p-3">
+        <h6 class="text-white mb-3">REAPER OSC Connection</h6>
+        <div class="mb-2">
+            <label class="form-label">Host</label>
+            <input type="text" id="oscHost" class="form-control" value="127.0.0.1">
+        </div>
+        <div class="row mb-3">
+            <div class="col-6">
+                <label class="form-label">Send Port</label>
+                <input type="num" id="oscSendPort" class="form-control" value="8000">
+            </div>
+            <div class="col-6">
+                <label class="form-label">Receive Port</label>
+                <input type="num" id="oscRecvPort" class="form-control" value="9000">
+            </div>
+        </div>
+
+        <hr class="border-secondary">
+
+        <div class="mb-2">
+            <label class="form-label">Command</label>
+            <select id="command" class="form-select">
+                <option value="play">Play / Stop</option>
+                <option value="stop">Stop</option>
+                <option value="pause">Pause</option>
+                <option value="record">Record</option>
+                <option value="click">Metronome</option>
+                <option value="repeat">Repeat</option>
+            </select>
+        </div>
+    </div>
+
+    <script src="../utils/common.js"></script>
+    <script src="../utils/action.js"></script>
+    <script src="../utils/axios.js"></script>
+    <script src="index.js"></script>
+</body>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 8px;
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+    ::-webkit-scrollbar { display: none; }
+    .form-label { font-size: 12px; margin-bottom: 4px; }
+    .form-control, .form-select { font-size: 13px; }
+</style>
+
+</html>

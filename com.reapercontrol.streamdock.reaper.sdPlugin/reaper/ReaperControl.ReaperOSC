@@ -1,0 +1,58 @@
+# ReaperControl REAPER OSC surface for StreamDock
+# This file is normally installed automatically by ReaperControl Auto-Setup.lua.
+# Manual location:
+#   Windows: %APPDATA%\REAPER\OSC
+#   macOS:   ~/Library/Application Support/REAPER/OSC
+
+# Device (this plugin) sends to REAPER on port 8000 (default).
+# REAPER sends feedback to the plugin on port 9000 (default).
+
+# ───────────────── Track feedback / control ─────────────────
+TRACK_VU n/track/vu n/track/@/vu
+TRACK_VU_L n/track/vu/L n/track/@/vu/L
+TRACK_VU_R n/track/vu/R n/track/@/vu/R
+
+TRACK_VOLUME n/track/volume n/track/@/volume
+TRACK_VOLUME f/track/volume/db f/track/@/volume/db
+TRACK_PAN n/track/pan n/track/@/pan
+
+TRACK_MUTE b/track/mute b/track/@/mute
+TRACK_SOLO b/track/solo b/track/@/solo
+TRACK_REC_ARM b/track/recarm b/track/@/recarm
+TRACK_SELECT b/track/select b/track/@/select
+
+TRACK_NAME s/track/name s/track/@/name
+
+# ───────────────── Master feedback ─────────────────
+MASTER_VU n/master/vu
+MASTER_VU_L n/master/vu/L
+MASTER_VU_R n/master/vu/R
+
+MASTER_VOLUME n/master/volume
+MASTER_PAN n/master/pan
+
+# ───────────────── Transport ─────────────────
+PLAY t/play
+STOP t/stop
+PAUSE t/pause
+RECORD t/record
+REPEAT t/repeat
+CLICK t/click
+
+# ───────────────── FX parameters ─────────────────
+FX_NAME s/fx/name s/fx/@/name s/track/@/fx/@/name
+FX_NUMBER s/fx/number/str s/fx/@/number/str s/track/@/fx/@/number/str
+FX_BYPASS b/fx/bypass b/fx/@/bypass b/track/@/fx/@/bypass
+FX_OPEN_UI b/fx/openui b/fx/@/openui b/track/@/fx/@/openui
+
+FX_PARAM_NAME s/fxparam/@/name s/fx/@/fxparam/@/name
+FX_PARAM_VALUE n/fxparam/@/value n/fx/@/fxparam/@/value n/track/@/fx/@/fxparam/@/value
+FX_PARAM_VALUE s/fxparam/@/value/str s/fx/@/fxparam/@/value/str
+
+LAST_TOUCHED_FX_PARAM_NAME s/fxparam/last_touched/name
+LAST_TOUCHED_FX_PARAM_VALUE n/fxparam/last_touched/value s/fxparam/last_touched/value/str
+
+# ───────────────── Time / position (optional) ─────────────────
+# BEAT f/beat
+# SAMPLES f/samples
+# TIME s/time/str

@@ -1,0 +1,114 @@
+{
+  "SDKVersion": 1,
+  "Author": "ReaperControl",
+  "Name": "ReaperControl for StreamDock",
+  "Description": "Channel controller for REAPER with always-on VU meters, FX parameter control, and transport via OSC.",
+  "Category": "Audio Production",
+  "Icon": "static/App-logo.svg",
+  "CategoryIcon": "static/App-logo.svg",
+  "URL": "https://github.com/reapercontrol/reapercontrol-streamdock",
+  "Version": "1.0.0",
+  "CodePathWin": "plugin/index.js",
+  "CodePathMac": "plugin/index.js",
+  "OS": [
+    { "Platform": "windows", "MinimumVersion": "10" },
+    { "Platform": "mac", "MinimumVersion": "10.15" }
+  ],
+  "Software": { "MinimumVersion": "3.10.188.226" },
+  "Nodejs": { "Version": "20" },
+  "Actions": [
+    {
+      "UUID": "com.reapercontrol.streamdock.reaper.channelstrip",
+      "Name": "Channel Strip",
+      "Tooltip": "REAPER channel with VU meter. Press to mute/solo/select.",
+      "Icon": "static/App-logo.svg",
+      "PropertyInspectorPath": "propertyInspector/channelstrip/index.html",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Settings": {
+        "trackNumber": 1,
+        "followBank": false,
+        "pressAction": "mute",
+        "showPeak": true,
+        "labelSize": 14
+      },
+      "States": [
+        { "Image": "static/App-logo.svg", "TitleAlignment": "top", "FontSize": "12" }
+      ]
+    },
+    {
+      "UUID": "com.reapercontrol.streamdock.reaper.channelfader",
+      "Name": "Channel Fader",
+      "Tooltip": "Knob volume/pan control for a REAPER channel.",
+      "Icon": "static/App-logo.svg",
+      "PropertyInspectorPath": "propertyInspector/channelfader/index.html",
+      "Controllers": ["Knob"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Settings": {
+        "trackNumber": 1,
+        "followBank": false,
+        "knobAction": "volume",
+        "sensitivity": 1.0
+      },
+      "States": [
+        { "Image": "static/App-logo.svg", "TitleAlignment": "top", "FontSize": "12" }
+      ]
+    },
+    {
+      "UUID": "com.reapercontrol.streamdock.reaper.transport",
+      "Name": "Transport",
+      "Tooltip": "REAPER transport control.",
+      "Icon": "static/App-logo.svg",
+      "PropertyInspectorPath": "propertyInspector/transport/index.html",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Settings": { "command": "play" },
+      "States": [
+        { "Image": "static/App-logo.svg", "TitleAlignment": "center", "FontSize": "12" }
+      ]
+    },
+    {
+      "UUID": "com.reapercontrol.streamdock.reaper.bank",
+      "Name": "Bank",
+      "Tooltip": "Navigate channel banks.",
+      "Icon": "static/App-logo.svg",
+      "PropertyInspectorPath": "propertyInspector/bank/index.html",
+      "Controllers": ["Keypad"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Settings": { "direction": "next", "bankSize": 8 },
+      "States": [
+        { "Image": "static/App-logo.svg", "TitleAlignment": "center", "FontSize": "12" }
+      ]
+    },
+    {
+      "UUID": "com.reapercontrol.streamdock.reaper.fxparam",
+      "Name": "FX Parameter",
+      "Tooltip": "Control any VST/AU/JSFX parameter in REAPER.",
+      "Icon": "static/App-logo.svg",
+      "PropertyInspectorPath": "propertyInspector/fxparam/index.html",
+      "Controllers": ["Keypad", "Knob"],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Settings": {
+        "trackNumber": 1,
+        "fxNumber": 1,
+        "paramNumber": 1,
+        "lastTouched": false,
+        "pressAction": "bypass",
+        "sensitivity": 1.0
+      },
+      "States": [
+        { "Image": "static/App-logo.svg", "TitleAlignment": "top", "FontSize": "12" }
+      ]
+    }
+  ]
+}

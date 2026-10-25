@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>Bank - Property Inspector</title>
+    <link href="../utils/bootstrap-icons.css" rel="stylesheet">
+    <link href="../utils/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="sdpi-wrapper p-3">
+        <h6 class="text-white mb-3">Bank Navigation</h6>
+        <div class="mb-3">
+            <label class="form-label">Direction</label>
+            <select id="direction" class="form-select">
+                <option value="next">Next Bank</option>
+                <option value="prev">Previous Bank</option>
+            </select>
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Bank Size</label>
+            <input type="num" id="bankSize" class="form-control" value="8">
+        </div>
+    </div>
+
+    <script src="../utils/common.js"></script>
+    <script src="../utils/action.js"></script>
+    <script src="../utils/axios.js"></script>
+    <script src="index.js"></script>
+</body>
+
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 8px;
+        background-color: #2a2a2a;
+        color: #fff;
+    }
+    ::-webkit-scrollbar { display: none; }
+    .form-label { font-size: 12px; margin-bottom: 4px; }
+    .form-control, .form-select { font-size: 13px; }
+</style>
+
+</html>
