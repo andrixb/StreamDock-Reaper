@@ -114,6 +114,7 @@ class OscClient {
         this.recvPort = options.recvPort || 9000;
         this.onMessage = options.onMessage || (() => {});
         this.onError = options.onError || (() => {});
+        this.onReady = options.onReady || (() => {});
         this.socket = null;
         this.ready = false;
     }
@@ -122,6 +123,7 @@ class OscClient {
         if (this.socket) return;
         this.socket = dgram.createSocket('udp4');
         this.socket.on('error', (err) => {
+            this.ready = false;
             this.onError(err);
         });
         this.socket.on('message', (msg) => {
@@ -134,6 +136,7 @@ class OscClient {
         });
         this.socket.bind(this.recvPort, () => {
             this.ready = true;
+            this.onReady();
         });
     }
 

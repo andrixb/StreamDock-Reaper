@@ -17,6 +17,16 @@ local PATTERN_CONTENT = [[# ReaperControl REAPER OSC surface for StreamDock
 # Device (this plugin) sends to REAPER on port 8000 (default).
 # REAPER sends feedback to the plugin on port 9000 (default).
 
+# How many tracks/sends/FX REAPER should send feedback for.
+DEVICE_TRACK_COUNT 16
+DEVICE_SEND_COUNT 4
+DEVICE_RECEIVE_COUNT 4
+DEVICE_FX_COUNT 8
+DEVICE_FX_PARAM_COUNT 16
+DEVICE_FX_INST_PARAM_COUNT 16
+DEVICE_MARKER_COUNT 0
+DEVICE_REGION_COUNT 0
+
 # Track feedback / control
 TRACK_VU n/track/vu n/track/@/vu
 TRACK_VU_L n/track/vu/L n/track/@/vu/L

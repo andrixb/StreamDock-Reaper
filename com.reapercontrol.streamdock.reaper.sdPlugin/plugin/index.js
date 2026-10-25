@@ -103,6 +103,9 @@ function initOsc() {
         onError: (err) => {
             reaperState.connected = false;
             log.error('OSC error:', err);
+        },
+        onReady: () => {
+            log.info(`OSC socket ready: listening on ${gs.oscRecvPort}`);
         }
     });
     oscClient.open();
@@ -119,8 +122,15 @@ function sendOsc(address, args) {
     }
 }
 
+let oscMessageLogCounter = 0;
 function handleOscMessage(address, args) {
     reaperState.connected = true;
+    if (address.includes('/vu') || address.includes('/volume') || address.includes('/mute') || address.includes('/solo')) {
+        oscMessageLogCounter++;
+        if (oscMessageLogCounter <= 20 || oscMessageLogCounter % 100 === 0) {
+            log.info('OSC rx:', address, args);
+        }
+    }
     const parts = address.split('/').filter(Boolean);
     if (!parts.length) return;
 
