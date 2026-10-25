@@ -8,15 +8,66 @@ local RECV_PORT = 9000      -- REAPER sends feedback here to StreamDock
 local PATTERN_NAME = "ReaperControl.ReaperOSC"
 local SURFACE_NAME = "ReaperControl"
 
-function copy_file(src, dst)
-    local infile = io.open(src, "rb")
-    if not infile then return false end
-    local data = infile:read("*all")
-    infile:close()
-    local outfile = io.open(dst, "wb")
-    if not outfile then return false end
-    outfile:write(data)
-    outfile:close()
+local PATTERN_CONTENT = [[# ReaperControl REAPER OSC surface for StreamDock
+# This file is normally installed automatically by ReaperControl Auto-Setup.lua.
+# Manual location:
+#   Windows: %APPDATA%\REAPER\OSC
+#   macOS:   ~/Library/Application Support/REAPER/OSC
+
+# Device (this plugin) sends to REAPER on port 8000 (default).
+# REAPER sends feedback to the plugin on port 9000 (default).
+
+# Track feedback / control
+TRACK_VU n/track/vu n/track/@/vu
+TRACK_VU_L n/track/vu/L n/track/@/vu/L
+TRACK_VU_R n/track/vu/R n/track/@/vu/R
+
+TRACK_VOLUME n/track/volume n/track/@/volume
+TRACK_VOLUME f/track/volume/db f/track/@/volume/db
+TRACK_PAN n/track/pan n/track/@/pan
+
+TRACK_MUTE b/track/mute b/track/@/mute
+TRACK_SOLO b/track/solo b/track/@/solo
+TRACK_REC_ARM b/track/recarm b/track/@/recarm
+TRACK_SELECT b/track/select b/track/@/select
+
+TRACK_NAME s/track/name s/track/@/name
+
+# Master feedback
+MASTER_VU n/master/vu
+MASTER_VU_L n/master/vu/L
+MASTER_VU_R n/master/vu/R
+
+MASTER_VOLUME n/master/volume
+MASTER_PAN n/master/pan
+
+# Transport
+PLAY t/play
+STOP t/stop
+PAUSE t/pause
+RECORD t/record
+REPEAT t/repeat
+CLICK t/click
+
+# FX parameters
+FX_NAME s/fx/name s/fx/@/name s/track/@/fx/@/name
+FX_NUMBER s/fx/number/str s/fx/@/number/str s/track/@/fx/@/number/str
+FX_BYPASS b/fx/bypass b/fx/@/bypass b/track/@/fx/@/bypass
+FX_OPEN_UI b/fx/openui b/fx/@/openui b/track/@/fx/@/openui
+
+FX_PARAM_NAME s/fxparam/@/name s/fx/@/fxparam/@/name
+FX_PARAM_VALUE n/fxparam/@/value n/fx/@/fxparam/@/value n/track/@/fx/@/fxparam/@/value
+FX_PARAM_VALUE s/fxparam/@/value/str s/fx/@/fxparam/@/value/str
+
+LAST_TOUCHED_FX_PARAM_NAME s/fxparam/last_touched/name
+LAST_TOUCHED_FX_PARAM_VALUE n/fxparam/last_touched/value s/fxparam/last_touched/value/str
+]]
+
+function write_file(path, content)
+    local f = io.open(path, "wb")
+    if not f then return false end
+    f:write(content)
+    f:close()
     return true
 end
 
@@ -30,19 +81,19 @@ function path_sep()
     return reaper.GetOS():match("Win") and "\\" or "/"
 end
 
-function dirname(path)
-    local sep = path_sep()
-    local s = path:match("^(.*)[" .. sep .. "]")
-    return s or ""
-end
-
 function backup_file(path)
     local bak = path .. ".reapercontrol.bak"
-    copy_file(path, bak)
+    local inf = io.open(path, "rb")
+    if not inf then return end
+    local data = inf:read("*all")
+    inf:close()
+    local outf = io.open(bak, "wb")
+    if outf then
+        outf:write(data)
+        outf:close()
+    end
 end
 
--- Parse reaper.ini into a table of sections -> key/value pairs.
--- This is a minimal parser; REAPER's ini is simple key=value under [sections].
 function parse_ini(path)
     local ini = {}
     local section = nil
@@ -105,21 +156,16 @@ function add_surface(ini)
     return idx
 end
 
--- ───────────────── Main ─────────────────
+-- Main
 local res_path = reaper.GetResourcePath("")
 local sep = path_sep()
 local osc_dir = res_path .. sep .. "OSC"
-local script_dir = dirname(debug.getinfo(1, "S").source:sub(2))
-local pattern_src = script_dir .. sep .. PATTERN_NAME
 local pattern_dst = osc_dir .. sep .. PATTERN_NAME
 local ini_path = res_path .. sep .. "reaper.ini"
 
 reaper.RecursiveCreateDirectory(osc_dir, 0)
 
-local copied = false
-if file_exists(pattern_src) then
-    copied = copy_file(pattern_src, pattern_dst)
-end
+local copied = write_file(pattern_dst, PATTERN_CONTENT)
 
 local ini = parse_ini(ini_path)
 local existing = find_reapercontrol_surface(ini)
@@ -133,12 +179,12 @@ end
 
 local msg = ""
 if copied then
-    msg = msg .. "Copied " .. PATTERN_NAME .. " to:\n" .. pattern_dst .. "\n\n"
+    msg = msg .. "Wrote " .. PATTERN_NAME .. " to:\n" .. pattern_dst .. "\n\n"
 elseif file_exists(pattern_dst) then
     msg = msg .. PATTERN_NAME .. " is already in:\n" .. pattern_dst .. "\n\n"
 else
-    msg = msg .. "Could not copy " .. PATTERN_NAME .. " automatically.\n"
-    msg = msg .. "Please copy it manually to:\n" .. osc_dir .. "\n\n"
+    msg = msg .. "Could not write " .. PATTERN_NAME .. " to:\n" .. pattern_dst .. "\n"
+    msg = msg .. "Please check folder permissions.\n\n"
 end
 
 if existing then
@@ -154,6 +200,7 @@ end
 msg = msg .. "Please restart REAPER now.\n"
 msg = msg .. "After restart, the StreamDock plugin will connect on ports:\n"
 msg = msg .. "  Send to REAPER: " .. SEND_PORT .. "\n"
-msg = msg .. "  Receive from REAPER: " .. RECV_PORT
+msg = msg .. "  Receive from REAPER: " .. RECV_PORT .. "\n\n"
+msg = msg .. "Keep this .lua file in REAPER/Scripts so the action keeps working."
 
 reaper.ShowMessageBox(msg, "ReaperControl Auto-Setup", 0)

@@ -25,14 +25,16 @@ Platform at https://space.key123.vip/.
 
 ## 2. Run the REAPER auto-setup script
 
-1. In REAPER, open **Actions → Show action list**.
-2. Click **ReaScript: Load** and choose `reaper/ReaperControl Auto-Setup.lua`.
-3. Run the action.
-4. The script will:
-   - Copy `ReaperControl.ReaperOSC` into REAPER's OSC folder
-   - Add a new OSC control surface called **ReaperControl** with the correct
-     ports
-   - Ask you to restart REAPER
+1. Copy `reaper/ReaperControl Auto-Setup.lua` into your REAPER **Scripts**
+   folder. To find it: **Options → Show REAPER resource path in explorer/finder**,
+   then open the `Scripts` subfolder.
+2. In REAPER, open **Actions → Show action list**.
+3. Click the **ReaScript: Load...** button at the bottom of the Actions window.
+4. Select `ReaperControl Auto-Setup.lua` from the `Scripts` folder.
+5. The script now appears in the action list — select it and click **Run**.
+6. The script is self-contained: it will write `ReaperControl.ReaperOSC` into
+   REAPER's OSC folder, add the OSC control surface to `reaper.ini`, and ask
+   you to restart REAPER.
 
 After restarting REAPER, the connection is ready.
 
