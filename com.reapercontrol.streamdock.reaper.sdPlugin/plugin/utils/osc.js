@@ -1,110 +1,112 @@
 /**
- * Minimal OSC encoder/decoder for REAPER control.
- * Supports the subset used by this plugin:
- *   int32 (i), float32 (f), string (s)
+ * Minimal OSC 1.0 encoder/decoder over UDP for REAPER control.
+ *
+ * Supported argument types: int32 (i), float32 (f), string (s), T/F/N/I.
+ * Incoming bundles (#bundle) are unpacked recursively — REAPER packs its
+ * feedback into bundles, so this is required to receive anything at all.
+ *
+ * Outgoing args:
+ *   - JS number  -> float32 ('f')  (REAPER accepts floats for every type)
+ *   - string     -> 's'
+ *   - boolean    -> 'T' / 'F'
+ *   - { type: 'i' | 'f' | 's', value } for an explicit type
  */
 const dgram = require('dgram');
 
-function pad4(n) {
-    return (n + 3) & ~3;
-}
+const pad4 = (n) => (n + 3) & ~3;
 
-function writeString(buf, str, offset) {
-    const bytes = Buffer.from(str + '\0', 'utf8');
-    bytes.copy(buf, offset);
-    return pad4(bytes.length);
-}
-
-function encodeAddress(addr) {
-    const len = pad4(addr.length + 1);
-    const buf = Buffer.alloc(len);
-    writeString(buf, addr, 0);
+function encodeString(str) {
+    const raw = Buffer.from(String(str), 'utf8');
+    const buf = Buffer.alloc(pad4(raw.length + 1)); // always at least one NUL
+    raw.copy(buf, 0);
     return buf;
 }
 
 function encodeArg(arg) {
+    if (arg && typeof arg === 'object' && 'type' in arg) {
+        if (arg.type === 'i') {
+            const buf = Buffer.alloc(4);
+            buf.writeInt32BE(Math.trunc(arg.value) | 0, 0);
+            return { tag: 'i', buf };
+        }
+        if (arg.type === 's') return { tag: 's', buf: encodeString(arg.value) };
+        arg = Number(arg.value);
+    }
     if (typeof arg === 'number') {
         const buf = Buffer.alloc(4);
-        buf.writeFloatBE(arg, 0);
+        buf.writeFloatBE(Number.isFinite(arg) ? arg : 0, 0);
         return { tag: 'f', buf };
     }
-    if (typeof arg === 'boolean') {
-        return { tag: arg ? 'T' : 'F', buf: Buffer.alloc(0) };
-    }
-    if (typeof arg === 'string') {
-        const len = pad4(arg.length + 1);
-        const buf = Buffer.alloc(len);
-        writeString(buf, arg, 0);
-        return { tag: 's', buf };
-    }
-    if (Number.isInteger(arg)) {
-        const buf = Buffer.alloc(4);
-        buf.writeInt32BE(arg, 0);
-        return { tag: 'i', buf };
-    }
-    return { tag: 'f', buf: Buffer.alloc(4) };
+    if (typeof arg === 'boolean') return { tag: arg ? 'T' : 'F', buf: Buffer.alloc(0) };
+    if (typeof arg === 'string') return { tag: 's', buf: encodeString(arg) };
+    return { tag: 'N', buf: Buffer.alloc(0) };
 }
 
 function encodeMessage(address, args = []) {
     args = Array.isArray(args) ? args : [args];
-    const addrBuf = encodeAddress(address);
-    let tags = ',';
-    let argBufs = [];
-    for (const arg of args) {
-        const enc = encodeArg(arg);
-        tags += enc.tag;
-        argBufs.push(enc.buf);
-    }
-    const tagBuf = encodeAddress(tags);
-    const totalLen = addrBuf.length + tagBuf.length + argBufs.reduce((s, b) => s + b.length, 0);
-    const buf = Buffer.alloc(totalLen);
-    let offset = 0;
-    addrBuf.copy(buf, offset); offset += addrBuf.length;
-    tagBuf.copy(buf, offset); offset += tagBuf.length;
-    for (const ab of argBufs) {
-        ab.copy(buf, offset); offset += ab.length;
-    }
-    return buf;
+    const encoded = args.map(encodeArg);
+    const tags = ',' + encoded.map((e) => e.tag).join('');
+    return Buffer.concat([encodeString(address), encodeString(tags), ...encoded.map((e) => e.buf)]);
 }
 
 function readString(buf, offset) {
     let end = offset;
     while (end < buf.length && buf[end] !== 0) end++;
-    const str = buf.toString('utf8', offset, end);
-    return { value: str, next: pad4(end + 1) };
+    return { value: buf.toString('utf8', offset, end), next: offset + pad4(end - offset + 1) };
 }
 
 function decodeMessage(buf) {
-    const addrRes = readString(buf, 0);
-    let offset = addrRes.next;
+    const addr = readString(buf, 0);
+    let offset = addr.next;
+    const args = [];
+    if (offset >= buf.length) return { address: addr.value, args };
     const tagRes = readString(buf, offset);
     offset = tagRes.next;
     const tags = tagRes.value;
-    const args = [];
     for (let i = 1; i < tags.length; i++) {
-        const tag = tags[i];
-        if (tag === 'f') {
-            args.push(buf.readFloatBE(offset));
-            offset += 4;
-        } else if (tag === 'i') {
-            args.push(buf.readInt32BE(offset));
-            offset += 4;
-        } else if (tag === 's') {
-            const r = readString(buf, offset);
-            args.push(r.value);
-            offset = r.next;
-        } else if (tag === 'T' || tag === 'I') {
-            args.push(true);
-        } else if (tag === 'F') {
-            args.push(false);
-        } else if (tag === 'N') {
-            args.push(null);
-        } else {
-            // Unknown tag, skip 4 bytes as best effort
-            offset += 4;
+        switch (tags[i]) {
+            case 'f': args.push(buf.readFloatBE(offset)); offset += 4; break;
+            case 'i': args.push(buf.readInt32BE(offset)); offset += 4; break;
+            case 'd': args.push(buf.readDoubleBE(offset)); offset += 8; break;
+            case 'h': args.push(Number(buf.readBigInt64BE(offset))); offset += 8; break;
+            case 's':
+            case 'S': {
+                const r = readString(buf, offset);
+                args.push(r.value);
+                offset = r.next;
+                break;
+            }
+            case 'b': {
+                const len = buf.readInt32BE(offset);
+                args.push(buf.subarray(offset + 4, offset + 4 + len));
+                offset += 4 + pad4(len);
+                break;
+            }
+            case 'T': args.push(true); break;
+            case 'F': args.push(false); break;
+            case 'I': args.push(true); break;
+            case 'N': args.push(null); break;
+            default: return { address: addr.value, args }; // unknown tag: stop parsing safely
         }
     }
-    return { address: addrRes.value, args };
+    return { address: addr.value, args };
+}
+
+/** Decode a UDP packet into a flat list of { address, args } (bundles unpacked). */
+function decodePacket(buf, out = []) {
+    if (buf.length >= 16 && buf.toString('ascii', 0, 8) === '#bundle\0') {
+        let offset = 16; // "#bundle\0" + 8-byte timetag
+        while (offset + 4 <= buf.length) {
+            const size = buf.readInt32BE(offset);
+            offset += 4;
+            if (size <= 0 || offset + size > buf.length) break;
+            decodePacket(buf.subarray(offset, offset + size), out);
+            offset += size;
+        }
+        return out;
+    }
+    out.push(decodeMessage(buf));
+    return out;
 }
 
 class OscClient {
@@ -121,67 +123,44 @@ class OscClient {
 
     open() {
         if (this.socket) return;
-        this.socket = dgram.createSocket('udp4');
-        this.socket.on('error', (err) => {
+        const socket = dgram.createSocket({ type: 'udp4', reuseAddr: false });
+        this.socket = socket;
+        socket.on('error', (err) => {
             this.ready = false;
             this.onError(err);
         });
-        this.socket.on('message', (msg) => {
+        socket.on('message', (msg) => {
+            let messages;
             try {
-                const decoded = decodeMessage(msg);
-                this.onMessage(decoded.address, decoded.args);
+                messages = decodePacket(msg);
             } catch (e) {
                 this.onError(e);
+                return;
+            }
+            for (const m of messages) {
+                try { this.onMessage(m.address, m.args); } catch (e) { this.onError(e); }
             }
         });
-        this.socket.bind(this.recvPort, () => {
+        socket.bind(this.recvPort, () => {
             this.ready = true;
             this.onReady();
         });
     }
 
     close() {
-        if (this.socket) {
-            this.socket.close();
-            this.socket = null;
-            this.ready = false;
-        }
+        if (!this.socket) return;
+        try { this.socket.close(); } catch (e) { /* already closed */ }
+        this.socket = null;
+        this.ready = false;
     }
 
-    send(address, args) {
+    send(address, args = []) {
         if (!this.socket) return;
         const msg = encodeMessage(address, args);
         this.socket.send(msg, this.sendPort, this.host, (err) => {
             if (err) this.onError(err);
         });
     }
-
-    sendBundle(messages, timestamp = 0) {
-        if (!this.socket) return;
-        // #bundle + timetag (8 bytes) + size/message pairs
-        const bundleStr = Buffer.from('#bundle\0', 'utf8');
-        const timetag = Buffer.alloc(8);
-        if (timestamp === 0) {
-            timetag.writeUInt32BE(0, 0);
-            timetag.writeUInt32BE(1, 4); // immediate
-        } else {
-            // seconds since 1900 + fraction
-            const secs = Math.floor(timestamp);
-            timetag.writeUInt32BE(secs + 2208988800, 0);
-            timetag.writeUInt32BE(0, 4);
-        }
-        let body = Buffer.alloc(0);
-        for (const m of messages) {
-            const msg = encodeMessage(m.address, m.args);
-            const size = Buffer.alloc(4);
-            size.writeInt32BE(msg.length, 0);
-            body = Buffer.concat([body, size, msg]);
-        }
-        const packet = Buffer.concat([bundleStr, timetag, body]);
-        this.socket.send(packet, this.sendPort, this.host, (err) => {
-            if (err) this.onError(err);
-        });
-    }
 }
 
-module.exports = { OscClient, encodeMessage, decodeMessage };
+module.exports = { OscClient, encodeMessage, decodeMessage, decodePacket };
