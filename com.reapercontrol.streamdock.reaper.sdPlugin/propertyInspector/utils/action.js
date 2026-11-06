@@ -1,9 +1,13 @@
 let $websocket, $uuid, $action, $context, $settings, $lang, $FileID = '';
+let $globalSettings = {};
 
+// Merges into the last-known global settings so a PI that only edits some keys
+// (e.g. OSC ports) doesn't wipe others (e.g. the current bank).
 WebSocket.prototype.setGlobalSettings = function(payload) {
+    $globalSettings = { ...$globalSettings, ...payload };
     this.send(JSON.stringify({
         event: "setGlobalSettings",
-        context: $uuid, payload
+        context: $uuid, payload: $globalSettings
     }));
 }
 
@@ -100,7 +104,10 @@ async function connectElgatoStreamDeckSocket(port, uuid, event, app, info) {
     $uuid = uuid; $action = info.action;
     $context = info.context;
     $websocket = new WebSocket('ws://127.0.0.1:' + port);
-    $websocket.onopen = () => $websocket.send(JSON.stringify({ event, uuid }));
+    $websocket.onopen = () => {
+        $websocket.send(JSON.stringify({ event, uuid }));
+        $websocket.getGlobalSettings();
+    };
 
     // Persistent-data proxy
     $websocket.onmessage = e => {
@@ -115,7 +122,10 @@ async function connectElgatoStreamDeckSocket(port, uuid, event, app, info) {
                     $websocket.saveData(data.payload.settings);
                 }
             });
-            if (!$back) $dom.main.style.display = 'block';
+            if (!$back && $dom.main) $dom.main.style.display = 'block';
+        }
+        if (data.event === 'didReceiveGlobalSettings') {
+            $globalSettings = { ...(data.payload?.settings || {}) };
         }
         $propEvent[data.event]?.(data.payload);
     };

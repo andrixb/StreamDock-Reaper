@@ -1,12 +1,13 @@
 {
-  "name": "streamdock-plugin",
+  "name": "reapercontrol-streamdock",
   "version": "1.0.0",
-  "author": "YourName",
+  "author": "ReaperControl",
   "main": "index.js",
   "description": "StreamDock plugin backend (runs as a Node.js child process)",
   "scripts": {
     "build": "npx ncc build index.js -m -o ./build && npx ncc build keepalive.js -m -o ./build-keepalive && node autofile.js",
-    "dev": "node devfile.js"
+    "dev": "node devfile.js",
+    "test": "node test/e2e.js"
   },
   "license": "ISC",
   "dependencies": {
